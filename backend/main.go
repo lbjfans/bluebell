@@ -25,25 +25,25 @@ func main() {
 		return
 	}
 	// 2. 初始化日志
-	if err := logger.Init(); err != nil {
+	if err := logger.Init(settings.Conf.LogConfig, settings.Conf.Mode); err != nil {
 		fmt.Println("init log fail", err)
 		return
 	}
 	defer zap.L().Sync() // 内存 > 磁盘
 	// 3. 初始化mysql
-	if err := mysql.Init(); err != nil {
+	if err := mysql.Init(settings.Conf.MySQLConfig); err != nil {
 		fmt.Println("init mysql fail", err)
 		return
 	}
 	defer mysql.Close()
 	// 4. redis
-	if err := redis.Init(); err != nil {
+	if err := redis.Init(settings.Conf.RedisConfig); err != nil {
 		fmt.Println("init redis fail", err)
 		return
 	}
 	defer redis.Close()
 	// 5. 注册路由
-	r := routers.Setup()
+	r := routers.Setup(settings.Conf.Mode)
 	// 6. 启动服务，优雅关机
 	srv := &http.Server{
 		//Addr:    ":8080",

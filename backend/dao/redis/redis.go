@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"backend/settings"
 	"context"
 	"fmt"
 	"github.com/redis/go-redis/v9"
@@ -9,11 +10,10 @@ import (
 
 var rdb *redis.Client
 
-func Init() (err error) {
+func Init(cfg *settings.RedisConfig) (err error) {
 	rdb = redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf("%s:%d",
-			viper.GetString("redis.host"),
-			viper.GetInt("redis.port"),
+			cfg.Host, cfg.Port,
 		),
 		//Addr:     "localhost:6379",
 		Password: viper.GetString("redis.password"), // 密码
