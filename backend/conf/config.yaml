@@ -2,6 +2,8 @@ app:
   name: "bluebell"
   mode: "dev"
   port: 8081
+  start_time: "2024-10-15"
+  machine_id: 1
 
 log:
   level: "debug"

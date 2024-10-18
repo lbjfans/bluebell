@@ -3,7 +3,7 @@ package mysql
 import (
 	"backend/settings"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql" // 匿名import，调用init
+	_ "github.com/go-sql-driver/mysql" // 匿名import，调用init(在driver.go)，调用mysql的驱动，用于连接mysql
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -16,7 +16,7 @@ func Init(cfg *settings.MySQLConfig) (err error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DB,
 	)
-	db, err = sqlx.Connect("mysql", dsn) // 返回*DB，没有真正连接
+	db, err = sqlx.Connect("mysql", dsn) // 返回*DB，先有驱动才能连接
 	if err != nil {
 		zap.L().Error("connect mysql fail", zap.Error(err))
 		return

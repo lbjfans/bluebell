@@ -1,9 +1,11 @@
 package main
 
 import (
+	"backend/controller"
 	"backend/dao/mysql"
 	"backend/dao/redis"
 	"backend/logger"
+	"backend/pkg/snowflake"
 	"backend/routers"
 	"backend/settings"
 	"context"
@@ -19,6 +21,10 @@ import (
 )
 
 func main() {
+	// 用makefile运行
+	//var confFile string
+	//flag.StringVar(&confFile, "conf", "./conf/config.yaml", "配置文件")
+	//flag.Parse()
 	// 1. 加载配置
 	if err := settings.Init(); err != nil {
 		fmt.Println("init settings fail", err)
@@ -42,6 +48,16 @@ func main() {
 		return
 	}
 	defer redis.Close()
+	// 雪花算法生成分布式ID
+	if err := snowflake.Init(1); err != nil {
+		fmt.Printf("init snowflake failed, err:%v\n", err)
+		return
+	}
+	// 注册使用：validator
+	if err := controller.InitTrans("zh"); err != nil {
+		fmt.Printf("init validator Trans failed,err:%v\n", err)
+		return
+	}
 	// 5. 注册路由
 	r := routers.Setup(settings.Conf.Mode)
 	// 6. 启动服务，优雅关机

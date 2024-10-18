@@ -27,6 +27,16 @@ func Init(cfg *settings.LogConfig, mode string) (err error) {
 		return
 	}
 	core := zapcore.NewCore(encoder, writeSyncer, l)
+	if mode == "dev" {
+		// 进入开发模式，日志输出到终端
+		consoleEncoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
+		core = zapcore.NewTee( // 多个输出
+			zapcore.NewCore(encoder, writeSyncer, l),                                     // 往日志文件里面写
+			zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), zapcore.DebugLevel), // 终端输出
+		)
+	} else {
+		core = zapcore.NewCore(encoder, writeSyncer, l)
+	}
 
 	lg := zap.New(core, zap.AddCaller())
 	zap.ReplaceGlobals(lg) // 替换zap包中全局的logger实例，后续在其他包中只需使用zap.L()调用即可
